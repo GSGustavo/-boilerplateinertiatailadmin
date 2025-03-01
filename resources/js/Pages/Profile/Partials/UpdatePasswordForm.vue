@@ -77,7 +77,7 @@ const updatePassword = () => {
             <div class="col-span-6 sm:col-span-4">
                 <InputLabel for="password_confirmation" value="Confirm Password" />
                 <TextInput
-                    id="password_confirmation"
+                    id=" "
                     v-model="form.password_confirmation"
                     type="password"
                     class="mt-1 block w-full"

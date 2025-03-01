@@ -1,4 +1,4 @@
-<script setup>
+<script>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue';
 import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
@@ -6,52 +6,67 @@ import SectionBorder from '@/Components/SectionBorder.vue';
 import TwoFactorAuthenticationForm from '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue';
+import MainAdmin from '@/Components/layout/MainAdmin.vue';
+import PageBreadcrumb from '@/Components/common/PageBreadcrumb.vue'
+import ProfileCard from '@/Components/profile/ProfileCard.vue'
+import PasswordCard from '@/Components/profile/PasswordCard.vue';
+import TwoFactorCard from '@/Components/profile/TwoFactorCard.vue';
+import DeleteAccount from '@/Components/profile/DeleteAccount.vue';
+import LogoutOtherBrowserSessions from '@/Components/profile/LogoutOtherBrowserSessions.vue';
 
-defineProps({
+export default {
+  components: {
+    DeleteUserForm,
+    // LogoutOtherBrowserSessionsForm,
+    SectionBorder,
+    // TwoFactorAuthenticationForm,
+    // UpdatePasswordForm,
+    // UpdateProfileInformationForm,
+    PageBreadcrumb,
+    ProfileCard,
+    PasswordCard,
+    TwoFactorCard,
+    DeleteAccount,
+    LogoutOtherBrowserSessions
+  },
+  props: {
     confirmsTwoFactorAuthentication: Boolean,
-    sessions: Array,
-});
+    sessions: Array
+  },
+
+
+  layout: MainAdmin
+}
 </script>
 
 <template>
-    <AppLayout title="Profile">
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Profile
-            </h2>
-        </template>
+  <PageBreadcrumb pageTitle="User Profile" />
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+    <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">Profile</h3>
+    <div v-if="$page.props.jetstream.canUpdateProfileInformation">
+      <ProfileCard />
 
-        <div>
-            <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <div v-if="$page.props.jetstream.canUpdateProfileInformation">
-                    <UpdateProfileInformationForm :user="$page.props.auth.user" />
+      <SectionBorder />
+    </div>
 
-                    <SectionBorder />
-                </div>
-
-                <div v-if="$page.props.jetstream.canUpdatePassword">
-                    <UpdatePasswordForm class="mt-10 sm:mt-0" />
+    <div v-if="$page.props.jetstream.canUpdatePassword">
+      <password-card></password-card>
 
                     <SectionBorder />
                 </div>
+    
 
-                <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication">
-                    <TwoFactorAuthenticationForm
-                        :requires-confirmation="confirmsTwoFactorAuthentication"
-                        class="mt-10 sm:mt-0"
-                    />
+    <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication">
+      <TwoFactorCard :requires-confirmation="confirmsTwoFactorAuthentication" class="mt-10 sm:mt-0" />
+    </div>
 
-                    <SectionBorder />
-                </div>
+    <LogoutOtherBrowserSessions :sessions="sessions" />
 
-                <LogoutOtherBrowserSessionsForm :sessions="sessions" class="mt-10 sm:mt-0" />
+    <template v-if="$page.props.jetstream.hasAccountDeletionFeatures">
+      <SectionBorder />
 
-                <template v-if="$page.props.jetstream.hasAccountDeletionFeatures">
-                    <SectionBorder />
+      <DeleteAccount class="mt-10 sm:mt-0" />
+    </template>
 
-                    <DeleteUserForm class="mt-10 sm:mt-0" />
-                </template>
-            </div>
-        </div>
-    </AppLayout>
+  </div>
 </template>
