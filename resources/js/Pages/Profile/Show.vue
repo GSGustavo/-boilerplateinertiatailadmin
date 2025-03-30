@@ -1,11 +1,6 @@
 <script>
-import AppLayout from '@/Layouts/AppLayout.vue';
 import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue';
-import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
 import SectionBorder from '@/Components/SectionBorder.vue';
-import TwoFactorAuthenticationForm from '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
-import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue';
-import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue';
 import MainAdmin from '@/Components/layout/MainAdmin.vue';
 import PageBreadcrumb from '@/Components/common/PageBreadcrumb.vue'
 import ProfileCard from '@/Components/profile/ProfileCard.vue'
@@ -17,11 +12,7 @@ import LogoutOtherBrowserSessions from '@/Components/profile/LogoutOtherBrowserS
 export default {
   components: {
     DeleteUserForm,
-    // LogoutOtherBrowserSessionsForm,
     SectionBorder,
-    // TwoFactorAuthenticationForm,
-    // UpdatePasswordForm,
-    // UpdateProfileInformationForm,
     PageBreadcrumb,
     ProfileCard,
     PasswordCard,
@@ -50,11 +41,11 @@ export default {
     </div>
 
     <div v-if="$page.props.jetstream.canUpdatePassword">
-      <password-card></password-card>
+      <password-card />
 
-                    <SectionBorder />
-                </div>
-    
+      <SectionBorder />
+    </div>
+
 
     <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication">
       <TwoFactorCard :requires-confirmation="confirmsTwoFactorAuthentication" class="mt-10 sm:mt-0" />
