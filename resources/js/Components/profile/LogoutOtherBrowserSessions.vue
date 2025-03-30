@@ -1,20 +1,84 @@
+
+<script>
+
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import ActionSection from '@/Components/ActionSection.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import { useToast } from 'primevue/usetoast';
+
+export default {
+    components: {
+        ActionMessage, ActionSection, DialogModal, PrimaryButton, SecondaryButton, TextInput, InputError
+    },
+    props: {
+        sessions: Array,
+    },
+    setup(props) {
+        const toast = useToast();
+        const confirmingLogout = ref(false);
+        const passwordInput = ref(null);
+
+        const form = useForm({
+            password: '',
+        });
+
+        const confirmLogout = () => {
+            confirmingLogout.value = true;
+
+            setTimeout(() => passwordInput.value.focus(), 250);
+        };
+
+        const logoutOtherBrowserSessions = () => {
+            form.delete(route('other-browser-sessions.destroy'), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    closeModal()
+                    toast.add({ severity: "success", summary: "Sucesso!", detail: "As sessões foram fechadas.", life: 5000 })
+                },
+                onError: () => {
+                    passwordInput.value.focus()
+                    toast.add({ severity: "error", summary: "Erro!", detail: "Houve um erro tente novamente mais tarde.", life: 5000 })
+                },
+                onFinish: () => form.reset(),
+            });
+        };
+
+        const closeModal = () => {
+            confirmingLogout.value = false;
+
+            form.reset();
+        };
+
+        return {
+            confirmLogout, logoutOtherBrowserSessions, closeModal, form, confirmingLogout, passwordInput
+        }
+    }
+}
+
+</script>
+
 <template>
+    <Toast/>
     <div>
         <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
             <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                     <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 ">
-                        Browser Sessions
+                        Sessões de Navegadores
                     </h4>
-
-                    <p class="text-sm">Permanently delete your account.</p>
-
-
                     <p class="text-sm lg:mb-6">
                     <div class="max-w-xl text-sm text-gray-600">
-                        If necessary, you may log out of all of your other browser sessions across all of your devices.
-                        Some of your recent sessions are listed below; however, this list may not be exhaustive. If you
-                        feel your account has been compromised, you should also update your password.
+                        Se necessário, você pode sair de todas as suas outras sessões do navegador em todos os seus
+                        dispositivos.
+                        Algumas das suas sessões recentes estão listadas abaixo; no entanto, esta lista pode não ser
+                        exaustiva. Se você
+                        sentir que sua conta foi comprometida, você também deve atualizar sua senha.
                     </div>
                     </p>
                 </div>
@@ -44,17 +108,16 @@
 
                         <div class="ms-3">
                             <div class="text-sm text-gray-600">
-                                {{ session.agent.platform ? session.agent.platform : 'Unknown' }} - {{
-                                    session.agent.browser ? session.agent.browser : 'Unknown' }}
+                                {{ session.agent.platform ? session.agent.platform : 'Desconhecido' }} - {{
+                                    session.agent.browser ? session.agent.browser : 'Desconhecido' }}
                             </div>
 
                             <div>
                                 <div class="text-xs text-gray-500">
                                     {{ session.ip_address }},
 
-                                    <span v-if="session.is_current_device" class="text-green-500 font-semibold">This
-                                        device</span>
-                                    <span v-else>Last active {{ session.last_active }}</span>
+                                    <span v-if="session.is_current_device" class="text-green-500 font-semibold">Este dispositivo</span>
+                                    <span v-else>Última vez ativo {{ session.last_active }}</span>
                                 </div>
                             </div>
                         </div>
@@ -63,27 +126,27 @@
 
                 <div class="flex items-center mt-5">
                     <button class="edit-button" @click="confirmLogout">
-                        Log Out Other Browser Sessions
+                        Sair de outras sessões de navegador
                     </button>
 
                     <ActionMessage :on="form.recentlySuccessful" class="ms-3">
-                        Done.
+                        Pronto.
                     </ActionMessage>
                 </div>
 
                 <!-- Log Out Other Devices Confirmation Modal -->
                 <DialogModal :show="confirmingLogout" @close="closeModal">
                     <template #title>
-                        Log Out Other Browser Sessions
+                        Sair de outras sessões de navegador
                     </template>
 
                     <template #content>
-                        Please enter your password to confirm you would like to log out of your other browser sessions
-                        across all of your devices.
+                        Insira sua senha para confirmar que você deseja sair de suas outras sessões do navegador
+em todos os seus dispositivos.
 
                         <div class="mt-4">
                             <TextInput ref="passwordInput" v-model="form.password" type="password"
-                                class="mt-1 block w-3/4" placeholder="Password" autocomplete="current-password"
+                                class="mt-1 block w-3/4" placeholder="Senha" autocomplete="current-password"
                                 @keyup.enter="logoutOtherBrowserSessions" />
 
                             <InputError :message="form.errors.password" class="mt-2" />
@@ -92,12 +155,12 @@
 
                     <template #footer>
                         <button class="danger-button" @click="closeModal">
-                            Cancel
+                            Cancelar
                         </button>
 
                         <button class="ms-3 edit-button" :class="{ 'opacity-25': form.processing }"
                             :disabled="form.processing" @click="logoutOtherBrowserSessions">
-                            Log Out Other Browser Sessions
+                            Sair de outras sessões de navegador
                         </button>
                     </template>
                 </DialogModal>
@@ -106,60 +169,3 @@
 
     </div>
 </template>
-
-<script>
-
-import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import ActionSection from '@/Components/ActionSection.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-
-export default {
-    components: {
-        ActionMessage, ActionSection, DialogModal, PrimaryButton, SecondaryButton, TextInput, InputError
-    },
-    props: {
-        sessions: Array,
-    },
-    setup(props) {
-
-        const confirmingLogout = ref(false);
-        const passwordInput = ref(null);
-
-        const form = useForm({
-            password: '',
-        });
-
-        const confirmLogout = () => {
-            confirmingLogout.value = true;
-
-            setTimeout(() => passwordInput.value.focus(), 250);
-        };
-
-        const logoutOtherBrowserSessions = () => {
-            form.delete(route('other-browser-sessions.destroy'), {
-                preserveScroll: true,
-                onSuccess: () => closeModal(),
-                onError: () => passwordInput.value.focus(),
-                onFinish: () => form.reset(),
-            });
-        };
-
-        const closeModal = () => {
-            confirmingLogout.value = false;
-
-            form.reset();
-        };
-
-        return {
-            confirmLogout, logoutOtherBrowserSessions, closeModal, form, confirmingLogout, passwordInput
-        }
-    }
-}
-
-</script>

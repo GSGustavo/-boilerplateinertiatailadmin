@@ -50,8 +50,11 @@ export default {
 				onSuccess: () => {
 					clearPhotoFileInput();
 					isProfileInfoModal.value = false;
-					toast.add({ severity: "error", summary: "Erro!", detail: "Houve um erro tente novamente mais tarde.", life: 5000 })
+					toast.add({ severity: "success", summary: "Sucesso!", detail: "As informações foram atualizadas.", life: 5000 })
 				},
+				onError: () => {
+					toast.add({ severity: "error", summary: "Erro!", detail: "Houve um erro tente novamente mais tarde.", life: 5000 })
+				}
 			});
 
 		};
@@ -197,7 +200,7 @@ export default {
 								<input id="photo" ref="photoInput" type="file" class="hidden"
 									@change="updatePhotoPreview">
 
-								<InputLabel for="photo" value="Photo" />
+								<InputLabel for="photo" value="Foto" />
 
 								<!-- Current Profile Photo -->
 								<div v-show="!photoPreview" class="mt-2">
@@ -212,12 +215,12 @@ export default {
 								</div>
 
 								<SecondaryButton class="mt-2 me-2" type="button" @click.prevent="selectNewPhoto">
-									Select A New Photo
+									Selecionar Foto
 								</SecondaryButton>
 
 								<SecondaryButton v-if="user.profile_photo_path" type="button" class="mt-2"
 									@click.prevent="deletePhoto">
-									Remove Photo
+									Remover Foto
 								</SecondaryButton>
 
 								<InputError :message="form.errors.photo" class="mt-2" />
@@ -225,24 +228,22 @@ export default {
 						</div>
 						<div class="mt-7">
 							<h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-								Personal Information
+								Informações Pessoais
 							</h5>
 
 							<div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
 								<div class="col-span-2 lg:col-span-1">
 									<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-										Name
+										Nome Completo
 									</label>
 									<input v-model="form.name" type="text"
 										class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
 									<InputError :message="form.errors.name" class="mt-2" />
 								</div>
 
-
-
 								<div class="col-span-2 lg:col-span-1">
 									<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-										Email Address
+										Endereço de Email
 									</label>
 									<input type="text" v-model="form.email"
 										class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
@@ -260,106 +261,5 @@ export default {
 				<Button type="submit" label="Salvar" icon="pi pi-check" @click="updateProfileInformation" />
 			</template>
 		</Dialog>
-
-		<Modal v-if="false" @close="isProfileInfoModal = false">
-			<template #body>
-				<div
-					class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-					<!-- close btn -->
-					<button @click="isProfileInfoModal = false"
-						class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
-						<svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
-							xmlns="http://www.w3.org/2000/svg">
-							<path fill-rule="evenodd" clip-rule="evenodd"
-								d="M6.04289 16.5418C5.65237 16.9323 5.65237 17.5655 6.04289 17.956C6.43342 18.3465 7.06658 18.3465 7.45711 17.956L11.9987 13.4144L16.5408 17.9565C16.9313 18.347 17.5645 18.347 17.955 17.9565C18.3455 17.566 18.3455 16.9328 17.955 16.5423L13.4129 12.0002L17.955 7.45808C18.3455 7.06756 18.3455 6.43439 17.955 6.04387C17.5645 5.65335 16.9313 5.65335 16.5408 6.04387L11.9987 10.586L7.45711 6.04439C7.06658 5.65386 6.43342 5.65386 6.04289 6.04439C5.65237 6.43491 5.65237 7.06808 6.04289 7.4586L10.5845 12.0002L6.04289 16.5418Z"
-								fill="" />
-						</svg>
-					</button>
-					<div class="px-2 pr-14">
-						<h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-							Edit Personal Information
-						</h4>
-						<p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-							Update your details to keep your profile up-to-date.
-						</p>
-					</div>
-						<div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
-
-							<div v-if="$page.props.jetstream.canUpdateProfileInformation">
-								<div v-if="$page.props.jetstream.managesProfilePhotos" class="col-span-6 sm:col-span-4">
-									<!-- Profile Photo File Input -->
-									<input id="photo" ref="photoInput" type="file" class="hidden"
-										@change="updatePhotoPreview">
-
-									<InputLabel for="photo" value="Photo" />
-
-									<!-- Current Profile Photo -->
-									<div v-show="!photoPreview" class="mt-2">
-										<img :src="user.profile_photo_url" :alt="user.name"
-											class="rounded-full size-20 object-cover">
-									</div>
-
-									<!-- New Profile Photo Preview -->
-									<div v-show="photoPreview" class="mt-2">
-										<span class="block rounded-full size-20 bg-cover bg-no-repeat bg-center"
-											:style="'background-image: url(\'' + photoPreview + '\');'" />
-									</div>
-
-									<SecondaryButton class="mt-2 me-2" type="button" @click.prevent="selectNewPhoto">
-										Select A New Photo
-									</SecondaryButton>
-
-									<SecondaryButton v-if="user.profile_photo_path" type="button" class="mt-2"
-										@click.prevent="deletePhoto">
-										Remove Photo
-									</SecondaryButton>
-
-									<InputError :message="form.errors.photo" class="mt-2" />
-								</div>
-							</div>
-							<div class="mt-7">
-								<h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-									Personal Information
-								</h5>
-
-								<div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-									<div class="col-span-2 lg:col-span-1">
-										<label
-											class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-											Name
-										</label>
-										<input v-model="form.name" type="text"
-											class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-										<InputError :message="form.errors.name" class="mt-2" />
-									</div>
-
-
-
-									<div class="col-span-2 lg:col-span-1">
-										<label
-											class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-											Email Address
-										</label>
-										<input type="text" v-model="form.email"
-											class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-										<InputError :message="form.errors.email" class="mt-2" />
-									</div>
-								</div>
-							</div>
-
-						</div>
-						<div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-							<button @click="isProfileInfoModal = false" type="button"
-								class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto">
-								Close
-							</button>
-							<button @click="updateProfileInformation" type="button"
-								class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-								Save Changes
-							</button>
-						</div>
-				</div>
-			</template>
-		</Modal>
 	</div>
 </template>

@@ -1,14 +1,96 @@
+<script>
+
+
+import { ref } from 'vue'
+import Modal from './Modal.vue'
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+import { useToast } from 'primevue/usetoast';
+
+export default {
+  components: {
+    Modal,
+    ActionMessage,
+    FormSection,
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  },
+  setup() {
+    const passwordInput = ref(null);
+    const currentPasswordInput = ref(null);
+    const isUpdatePasswordModal = ref(false)
+    const toast = useToast();
+
+    const form = useForm({
+      current_password: '',
+      password: '',
+      password_confirmation: '',
+    });
+
+    const updatePassword = () => {
+      form.put(route('user-password.update'), {
+        errorBag: 'updatePassword',
+        preserveScroll: true,
+        onSuccess: () => {
+          form.reset();
+          isUpdatePasswordModal.value = false
+          toast.add({ severity: "success", summary: "Sucesso!", detail: "Sua senha foi atualizada.", life: 5000 })
+        },
+        onError: () => {
+          toast.add({ severity: "error", summary: "Erro!", detail: "Houve um erro tente novamente mais tarde.", life: 5000 })
+          if (form.errors.password) {
+            form.reset('password', 'password_confirmation');
+            passwordInput.value.focus();
+
+          }
+
+          if (form.errors.current_password) {
+            form.reset('current_password');
+            currentPasswordInput.value.focus();
+          }
+        },
+      });
+
+
+    };
+
+    const isProfileInfoModal = ref(false)
+
+    return {
+      passwordInput,
+      currentPasswordInput,
+      form,
+      updatePassword,
+      isProfileInfoModal,
+      isUpdatePasswordModal
+    }
+  }
+}
+
+
+</script>
+
+
 <template>
+  <Toast />
   <div>
     <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 ">
-            Update Password
+            Atualizar Senha
 
           </h4>
 
-          <p class="text-sm">Ensure your account is using a long, random password to stay secure.</p>
+          <p class="text-sm">Certifique-se de que sua conta esteja usando uma senha longa e aleatória para permanecer segura.</p>
         </div>
 
         <button class="edit-button" @click="isUpdatePasswordModal = true">
@@ -18,11 +100,58 @@
               d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
               fill="" />
           </svg>
-          Edit
+          Editar
         </button>
       </div>
     </div>
-    <Modal v-if="isUpdatePasswordModal" @close="isUpdatePasswordModal = false">
+
+    <Dialog v-model:visible="isUpdatePasswordModal" :style="{ width: '650px' }" header="Atualizar Senha"
+      class="z-9999999" :modal="true">
+      <div
+        class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white  dark:bg-gray-900 lg:p-11">
+        <!-- close btn -->
+
+        <div class="custom-scrollbar overflow-y-auto ">
+          <div class="">
+
+            <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+              <div class="col-span-2">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Senha Atual:
+                </label>
+                <TextInput id="current_password" ref="currentPasswordInput" v-model="form.current_password"
+                  type="password" class="mt-1 block w-full" autocomplete="current-password" />
+                <InputError :message="form.errors.current_password" class="mt-2" />
+              </div>
+              <div class="col-span-2">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Nova Senha:
+                </label>
+                <TextInput id="password" ref="passwordInput" v-model="form.password" type="password"
+                  class="mt-1 block w-full" autocomplete="new-password" />
+                <InputError :message="form.errors.password" class="mt-2" />
+              </div>
+              <div class="col-span-2">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Confirme a Senha:
+                </label>
+                <TextInput id=" " v-model="form.password_confirmation" type="password" class="mt-1 block w-full"
+                  autocomplete="new-password" />
+                <InputError :message="form.errors.password_confirmation" class="mt-2" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <template #footer>
+        <Button label="Cancelar" icon="pi pi-times" text @click="isUpdatePasswordModal = false" />
+        <Button type="submit" label="Salvar" icon="pi pi-check" @click="updatePassword" />
+      </template>
+
+    </Dialog>
+
+    <Modal v-if="false" @close="isUpdatePasswordModal = false">
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
@@ -45,7 +174,7 @@
 
           <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
             <div class="mt-7">
-         
+
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div class="col-span-2">
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -106,77 +235,3 @@
     </Modal>
   </div>
 </template>
-
-<script>
-
-
-import { ref } from 'vue'
-import Modal from './Modal.vue'
-import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-
-export default {
-  components: {
-    Modal,
-    ActionMessage,
-    FormSection,
-    InputError,
-    InputLabel,
-    PrimaryButton,
-    TextInput
-  },
-  setup() {
-    const passwordInput = ref(null);
-    const currentPasswordInput = ref(null);
-    const isUpdatePasswordModal = ref(false)
-
-    const form = useForm({
-      current_password: '',
-      password: '',
-      password_confirmation: '',
-    });
-
-    const updatePassword = () => {
-      form.put(route('user-password.update'), {
-        errorBag: 'updatePassword',
-        preserveScroll: true,
-        onSuccess: () => {
-          form.reset();
-          isUpdatePasswordModal.value = false
-        },
-        onError: () => {
-          if (form.errors.password) {
-            form.reset('password', 'password_confirmation');
-            passwordInput.value.focus();
-          }
-
-          if (form.errors.current_password) {
-            form.reset('current_password');
-            currentPasswordInput.value.focus();
-          }
-        },
-      });
-
-
-    };
-
-    const isProfileInfoModal = ref(false)
-
-    return {
-      passwordInput,
-      currentPasswordInput,
-      form,
-      updatePassword,
-      isProfileInfoModal,
-      isUpdatePasswordModal
-    }
-  }
-}
-
-
-</script>
