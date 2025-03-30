@@ -8,8 +8,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { useToast } from 'primevue/usetoast';
 
-import Modal from './Modal.vue';
 
 export default {
 	components: {
@@ -21,11 +21,10 @@ export default {
 		SecondaryButton,
 		TextInput,
 		Link,
-		Modal
 	},
 	setup() {
-
-
+		
+		const toast = useToast();
 		const user = usePage().props.auth.user;
 
 
@@ -51,6 +50,7 @@ export default {
 				onSuccess: () => {
 					clearPhotoFileInput();
 					isProfileInfoModal.value = false;
+					toast.add({ severity: "error", summary: "Erro!", detail: "Houve um erro tente novamente mais tarde.", life: 5000 })
 				},
 			});
 
@@ -115,6 +115,7 @@ export default {
 </script>
 
 <template>
+	<Toast/>
 	<div>
 		<div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
 			<div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
@@ -182,13 +183,88 @@ export default {
 			</div>
 		</div>
 
-		<Dialog v-model:visible="isProfileInfoModal" :style="{ width: '650px' }" header="Título Do Modal" class="z-9999999" :modal="true">
+		<Dialog v-model:visible="isProfileInfoModal" :style="{ width: '650px' }" header="Editar Informações"
+			class="z-9999999" :modal="true">
 
+			<div
+				class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 ">
+				<form class="flex flex-col">
+					<div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
+
+						<div v-if="$page.props.jetstream.canUpdateProfileInformation">
+							<div v-if="$page.props.jetstream.managesProfilePhotos" class="col-span-6 sm:col-span-4">
+								<!-- Profile Photo File Input -->
+								<input id="photo" ref="photoInput" type="file" class="hidden"
+									@change="updatePhotoPreview">
+
+								<InputLabel for="photo" value="Photo" />
+
+								<!-- Current Profile Photo -->
+								<div v-show="!photoPreview" class="mt-2">
+									<img :src="user.profile_photo_url" :alt="user.name"
+										class="rounded-full size-20 object-cover">
+								</div>
+
+								<!-- New Profile Photo Preview -->
+								<div v-show="photoPreview" class="mt-2">
+									<span class="block rounded-full size-20 bg-cover bg-no-repeat bg-center"
+										:style="'background-image: url(\'' + photoPreview + '\');'" />
+								</div>
+
+								<SecondaryButton class="mt-2 me-2" type="button" @click.prevent="selectNewPhoto">
+									Select A New Photo
+								</SecondaryButton>
+
+								<SecondaryButton v-if="user.profile_photo_path" type="button" class="mt-2"
+									@click.prevent="deletePhoto">
+									Remove Photo
+								</SecondaryButton>
+
+								<InputError :message="form.errors.photo" class="mt-2" />
+							</div>
+						</div>
+						<div class="mt-7">
+							<h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
+								Personal Information
+							</h5>
+
+							<div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+								<div class="col-span-2 lg:col-span-1">
+									<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+										Name
+									</label>
+									<input v-model="form.name" type="text"
+										class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+									<InputError :message="form.errors.name" class="mt-2" />
+								</div>
+
+
+
+								<div class="col-span-2 lg:col-span-1">
+									<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+										Email Address
+									</label>
+									<input type="text" v-model="form.email"
+										class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
+									<InputError :message="form.errors.email" class="mt-2" />
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</form>
+			</div>
+
+			<template #footer>
+				<Button label="Cancelar" icon="pi pi-times" text @click="isProfileInfoModal = false" />
+				<Button type="submit" label="Salvar" icon="pi pi-check" @click="updateProfileInformation" />
+			</template>
 		</Dialog>
 
 		<Modal v-if="false" @close="isProfileInfoModal = false">
 			<template #body>
-				<div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+				<div
+					class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
 					<!-- close btn -->
 					<button @click="isProfileInfoModal = false"
 						class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300">
@@ -207,7 +283,6 @@ export default {
 							Update your details to keep your profile up-to-date.
 						</p>
 					</div>
-					<form class="flex flex-col">
 						<div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
 
 							<div v-if="$page.props.jetstream.canUpdateProfileInformation">
@@ -283,7 +358,6 @@ export default {
 								Save Changes
 							</button>
 						</div>
-					</form>
 				</div>
 			</template>
 		</Modal>
