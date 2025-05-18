@@ -14,6 +14,7 @@ declare module 'vue' {
     DataTable: typeof import('primevue/datatable')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
+    Divider: typeof import('primevue/divider')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
     Form: typeof import('@primevue/forms/form')['default']
     IconField: typeof import('primevue/iconfield')['default']
@@ -37,5 +38,6 @@ declare module 'vue' {
   }
   export interface ComponentCustomProperties {
     KeyFilter: typeof import('primevue/keyfilter')['default']
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

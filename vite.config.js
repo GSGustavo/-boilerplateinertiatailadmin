@@ -29,7 +29,15 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-          '@': fileURLToPath(new URL('./resources/js', import.meta.url))
+            '@': fileURLToPath(new URL('./resources/js', import.meta.url))
         },
-      },
+    },
+    server: {
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        },
+        cors: {
+            origin: '*'
+        },
+    },
 });

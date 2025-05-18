@@ -6,9 +6,9 @@
     <nav>
       <ol class="flex items-center gap-1.5">
         <li>
-          <router-link
+          <Link
             class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-            to="/"
+            :href="path  ?? '/'"
           >
             Home
             <svg
@@ -27,7 +27,7 @@
                 stroke-linejoin="round"
               />
             </svg>
-          </router-link>
+          </Link>
         </li>
         <li class="text-sm text-gray-800 dark:text-white/90">
           {{ pageTitle }}
@@ -39,9 +39,11 @@
 
 <script setup lang="ts">
 import { defineProps } from 'vue'
+import { Link } from '@inertiajs/vue3';
 
 interface BreadcrumbProps {
-  pageTitle: string
+  pageTitle: string,
+  path: string
 }
 
 defineProps<BreadcrumbProps>()

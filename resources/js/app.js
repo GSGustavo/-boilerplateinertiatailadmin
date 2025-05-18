@@ -1,5 +1,4 @@
 import './bootstrap';
-import '../css/app.css';
 
 import 'primeicons/primeicons.css'
 
@@ -7,15 +6,22 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { createPinia } from 'pinia'
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+import VueApexCharts from "vue3-apexcharts";
 
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
 import { definePreset } from '@primeuix/themes';
 import ToastService from 'primevue/toastservice';
+import Tooltip from 'primevue/tooltip';
+import ConfirmationService from 'primevue/confirmationservice';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const MyPreset = definePreset(Aura, {
+
     semantic: {
         focusRing: {
             width: '1px',
@@ -23,6 +29,7 @@ const MyPreset = definePreset(Aura, {
             color: '{primary.color}',
             offset: '1px'
         },
+        
         colorScheme: {
             light: {
                 surface: {
@@ -52,11 +59,11 @@ const MyPreset = definePreset(Aura, {
                     800: '#252dae',
                     900: '#262e89',
                     950: '#161950',
-
+                    
                     color: '#465fff',
                     inverseColor: '#ffffff',
                     hoverColor: '#262e89',
-
+                    
                     activeColor: '#262e89',
                     border: '#465fff',
                 },
@@ -67,7 +74,7 @@ const MyPreset = definePreset(Aura, {
                     focusColor: '#ffffff',
                     border: '#465fff',
                 },
-
+                
             },
             dark: {
                 surface: {
@@ -90,12 +97,16 @@ const MyPreset = definePreset(Aura, {
 })
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title ? title + " - " : ""}${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })
-            .use(plugin)
+
+            .component('VueDatePicker', VueDatePicker)
+            .use(createPinia())
             .use(ZiggyVue)
+            // .use(PrimeVue, { unstyled: true })
+           
             .use(PrimeVue, {
                 theme: {
                     preset: MyPreset,
@@ -108,10 +119,15 @@ createInertiaApp({
                     overlay: 99999,      //select, popover
                     menu: 1000,         //overlay menus
                     tooltip: 1100,       //tooltip
-
+                
                 }
             })
             .use(ToastService)
+            .use(ConfirmationService)
+            .use(VueApexCharts)
+
+            .use(plugin)
+            .directive('tooltip', Tooltip)
             .mount(el);
     },
     progress: {
